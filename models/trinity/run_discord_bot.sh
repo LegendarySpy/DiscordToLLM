@@ -3,12 +3,22 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ENV_FILE="${ENV_FILE:-$REPO_DIR/.env}"
+
+if [[ -f "$ENV_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$ENV_FILE"
+  set +a
+fi
 
 LLAMA_SERVER_BIN="${LLAMA_SERVER_BIN:-$REPO_DIR/llama.cpp/llama-server}"
 LLAMA_MODEL_PATH="${LLAMA_MODEL_PATH:-$REPO_DIR/models/trinity/output/gguf/Trinity-Nano-Preview.Q8_0.gguf}"
 LLAMA_SERVER_PORT="${LLAMA_SERVER_PORT:-8085}"
 LLAMA_SERVER_HOST="${LLAMA_SERVER_HOST:-127.0.0.1}"
 LLAMA_NGL="${LLAMA_NGL:-999}"
+LLAMA_LOG_VERBOSITY="${LLAMA_LOG_VERBOSITY:-1}"
+LLAMA_LOG_DISABLE="${LLAMA_LOG_DISABLE:-0}"
 
 BOT_PY="${BOT_PY:-$REPO_DIR/.venv/bin/python}"
 BOT_SCRIPT="${BOT_SCRIPT:-$REPO_DIR/models/trinity/discord_trinity_bot.py}"
@@ -53,7 +63,16 @@ else
     exit 1
   fi
 
-  "$LLAMA_SERVER_BIN" -m "$LLAMA_MODEL_PATH" -ngl "$LLAMA_NGL" --port "$LLAMA_SERVER_PORT" &
+  SERVER_ARGS=(
+    -m "$LLAMA_MODEL_PATH"
+    -ngl "$LLAMA_NGL"
+    --port "$LLAMA_SERVER_PORT"
+    --verbosity "$LLAMA_LOG_VERBOSITY"
+  )
+  if [[ "$LLAMA_LOG_DISABLE" == "1" ]]; then
+    SERVER_ARGS+=(--log-disable)
+  fi
+  "$LLAMA_SERVER_BIN" "${SERVER_ARGS[@]}" &
   SERVER_PID=$!
 
   cleanup() {
