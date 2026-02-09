@@ -2,6 +2,7 @@
 
 > **Privacy & Respect Note**
 > Train responsibly. Your dataset probably includes other people's messages, get consent where possible, remove sensitive details, and avoid sharing private data.
+> NOTE: This project is also 80% vibe coded and intended for experimentation purposes or fun.
 
 ## What you do
 

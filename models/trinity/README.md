@@ -30,5 +30,3 @@ QUANT=q4_k_m ./models/trinity/export_gguf.sh
 ```bash
 ./models/trinity/run_discord_bot.sh
 ```
-
-This is the full flow for Trinity: train -> export -> run bot.

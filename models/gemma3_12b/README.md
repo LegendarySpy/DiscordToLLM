@@ -30,5 +30,3 @@ QUANT=q4_k_m ./models/gemma3_12b/export_gguf.sh
 ```bash
 ./models/gemma3_12b/run_discord_bot.sh
 ```
-
-This is the full flow for Gemma 3 12B: train -> export -> run bot.

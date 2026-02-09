@@ -30,5 +30,3 @@ QUANT=q4_k_m ./models/llama31/export_gguf.sh
 ```bash
 ./models/llama31/run_discord_bot.sh
 ```
-
-This is the full flow for Llama 3.1: train -> export -> run bot.
