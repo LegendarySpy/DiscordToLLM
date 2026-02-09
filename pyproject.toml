@@ -1,0 +1,24 @@
+[project]
+name = "unsloth-training"
+version = "0.1.0"
+description = "Local Unsloth fine-tuning pipelines for Trinity, Llama 3.1, and Gemma 3"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "python-dotenv",
+]
+
+[project.optional-dependencies]
+train = [
+    "datasets",
+    "trl",
+    "transformers",
+    "peft",
+    "unsloth[torch]",
+]
+bot = [
+    "discord.py",
+]
+dev = [
+    "ruff",
+]

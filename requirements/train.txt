@@ -1,0 +1,6 @@
+-r base.txt
+unsloth[torch]
+trl
+datasets
+transformers
+peft

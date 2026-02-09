@@ -1,0 +1,66 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+.python-version
+
+# Virtual environments
+.venv/
+
+# Packaging / build
+build/
+dist/
+*.egg-info/
+.wheels/
+
+# Test / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Local environment files
+.env
+.env.*
+!.env.example
+
+# Runtime / training caches
+wandb/
+unsloth_compiled_cache/
+.hf_cache/
+_unsloth_sentencepiece_temp/
+
+# Local tool clones/builds
+llama.cpp/
+
+# Datasets (keep only placeholders)
+datasets/input/**
+!datasets/input/.gitkeep
+datasets/output/**
+!datasets/output/.gitkeep
+
+# Model artifacts and outputs (keep only placeholders)
+models/**/output/**
+!models/**/output/.gitkeep
+
+# Weights / checkpoints / adapters
+*.gguf
+*.safetensors
+*.bin
+checkpoint-*/
+
+# Local one-off files
+final_dataset.jsonl
+Modelfile
+opencode.json
+*.log

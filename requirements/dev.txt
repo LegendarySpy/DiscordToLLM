@@ -1,0 +1,3 @@
+-r train.txt
+-r bot.txt
+ruff

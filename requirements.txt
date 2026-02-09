@@ -1,0 +1,2 @@
+-r requirements/train.txt
+-r requirements/bot.txt
