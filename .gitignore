@@ -43,15 +43,11 @@ _unsloth_sentencepiece_temp/
 # Local tool clones/builds
 llama.cpp/
 
-# Datasets (keep only placeholders)
-datasets/input/**
-!datasets/input/.gitkeep
-datasets/output/**
-!datasets/output/.gitkeep
+# Datasets
+datasets/
 
-# Model artifacts and outputs (keep only placeholders)
-models/**/output/**
-!models/**/output/.gitkeep
+# Model artifacts and outputs
+models/**/output/
 
 # Weights / checkpoints / adapters
 *.gguf
