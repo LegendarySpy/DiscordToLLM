@@ -191,14 +191,33 @@ async def _has_allowed_role(msg: discord.Message) -> bool:
         return False
 
 
+def _normalize_turns_for_template(turns: Deque[Turn]) -> List[Turn]:
+    merged: List[Turn] = []
+    for t in turns:
+        if t.role not in {"user", "assistant"}:
+            continue
+        content = (t.content or "").strip()
+        if not content:
+            continue
+        if merged and merged[-1].role == t.role:
+            merged[-1].content = f"{merged[-1].content}\n{content}"
+        else:
+            merged.append(Turn(t.role, content))
+
+    # Chat templates generally expect first conversational role to be user.
+    while merged and merged[0].role != "user":
+        merged.pop(0)
+    return merged
+
+
 def _build_messages(system_prompt: str, turns: Deque[Turn]) -> List[Dict[str, str]]:
     msgs: List[Dict[str, str]] = []
+    system_parts = []
     if system_prompt:
-        msgs.append({"role": "system", "content": system_prompt})
-        msgs.append({"role": "system", "content": NO_TOOLS_PROMPT})
-    else:
-        msgs.append({"role": "system", "content": NO_TOOLS_PROMPT})
-    for t in turns:
+        system_parts.append(system_prompt)
+    system_parts.append(NO_TOOLS_PROMPT)
+    msgs.append({"role": "system", "content": "\n".join(system_parts)})
+    for t in _normalize_turns_for_template(turns):
         msgs.append({"role": t.role, "content": t.content})
     return msgs
 

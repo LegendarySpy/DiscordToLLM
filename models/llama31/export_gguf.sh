@@ -30,6 +30,14 @@ LORA_DIR="${LORA_DIR:-$REPO_DIR/models/llama31/output/lora}"
 OUT_DIR="${OUT_DIR:-$REPO_DIR/models/llama31/output/gguf}"
 QUANT="${QUANT:-q8_0}"
 
+if [[ ! -x "$REPO_DIR/llama.cpp/llama-quantize" && ! -x "$REPO_DIR/llama.cpp/quantize" ]]; then
+  echo "Missing llama.cpp quantizer in $REPO_DIR/llama.cpp." >&2
+  echo "Run: ./scripts/install_llamacpp.sh" >&2
+  exit 1
+fi
+
+cd "$REPO_DIR"
+
 "$PY_BIN" "$REPO_DIR/models/llama31/export_llama31_gguf.py" \
   --lora_dir "$LORA_DIR" \
   --out_dir "$OUT_DIR" \

@@ -19,7 +19,7 @@ TRAIN_CHAT_TEMPLATE=gemma-3 ./models/gemma3_12b/train.sh
 ./models/gemma3_12b/export_gguf.sh
 ```
 
-Optional quantization example:
+Optional quantization example if you want to overwrite .env:
 
 ```bash
 QUANT=q4_k_m ./models/gemma3_12b/export_gguf.sh

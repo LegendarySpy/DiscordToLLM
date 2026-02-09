@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import os
+from contextlib import contextmanager
 from pathlib import Path
 
 os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
@@ -14,6 +15,51 @@ from peft import PeftModel
 
 from unsloth import FastLanguageModel
 from unsloth.chat_templates import get_chat_template
+
+
+@contextmanager
+def pushd(path: Path):
+    previous = Path.cwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(previous)
+
+
+def resolve_path(raw_path: str, repo_root: Path) -> Path:
+    path = Path(raw_path).expanduser()
+    if not path.is_absolute():
+        path = repo_root / path
+    return path.resolve()
+
+
+def relocate_generated_artifacts(result: object, repo_root: Path, out_dir: Path) -> None:
+    if not isinstance(result, dict):
+        return
+
+    candidates = []
+    gguf_files = result.get("gguf_files")
+    if isinstance(gguf_files, list):
+        candidates.extend(gguf_files)
+
+    modelfile = result.get("modelfile")
+    if isinstance(modelfile, str):
+        candidates.append(modelfile)
+
+    for item in candidates:
+        source = Path(item)
+        if not source.is_absolute():
+            source = repo_root / source
+        if not source.exists():
+            continue
+
+        destination = out_dir / source.name
+        if source.resolve() == destination.resolve():
+            continue
+        if destination.exists():
+            destination.unlink()
+        source.replace(destination)
 
 
 def parse_args() -> argparse.Namespace:
@@ -30,12 +76,13 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
+    repo_root = Path(__file__).resolve().parents[2]
 
-    lora_dir = Path(args.lora_dir)
+    lora_dir = resolve_path(args.lora_dir, repo_root)
     if not lora_dir.exists():
         raise FileNotFoundError(f"lora_dir not found: {lora_dir}")
 
-    out_dir = Path(args.out_dir)
+    out_dir = resolve_path(args.out_dir, repo_root)
     out_dir.mkdir(parents=True, exist_ok=True)
 
     # export path: load full precision (not 4bit), then quantize to gguf
@@ -58,12 +105,14 @@ def main() -> None:
     if not use_peft_dir:
         model = PeftModel.from_pretrained(model, str(lora_dir), is_trainable=False)
 
-    model.save_pretrained_gguf(
-        str(out_dir),
-        tokenizer,
-        quantization_method=args.quant,
-        maximum_memory_usage=args.maximum_memory_usage,
-    )
+    with pushd(repo_root):
+        result = model.save_pretrained_gguf(
+            str(out_dir),
+            tokenizer,
+            quantization_method=args.quant,
+            maximum_memory_usage=args.maximum_memory_usage,
+        )
+    relocate_generated_artifacts(result, repo_root, out_dir)
 
     print(f"✅ wrote gguf to {out_dir}")
     print("note: make sure your gguf runner is using GPU offload (n_gpu_layers / -ngl), otherwise it will be CPU-slow.")

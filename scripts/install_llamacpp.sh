@@ -11,7 +11,19 @@ fi
 cmake -S "$LLAMA_DIR" -B "$LLAMA_DIR/build" -DCMAKE_BUILD_TYPE=Release
 cmake --build "$LLAMA_DIR/build" -j
 
-# Keep the old path used by existing scripts.
-ln -sf "$LLAMA_DIR/build/bin/llama-server" "$LLAMA_DIR/llama-server"
+# Link llama.cpp tools into the repo-local llama.cpp root because
+# Unsloth checks this exact location during GGUF export.
+for BIN in llama-server llama-quantize quantize llama-cli llama-mtmd-cli llama-gguf-split; do
+  SRC="$LLAMA_DIR/build/bin/$BIN"
+  if [[ -x "$SRC" ]]; then
+    ln -sf "$SRC" "$LLAMA_DIR/$BIN"
+  fi
+done
+
+if [[ ! -x "$LLAMA_DIR/llama-quantize" && ! -x "$LLAMA_DIR/quantize" ]]; then
+  echo "llama.cpp build completed, but quantizer binary was not found." >&2
+  echo "Expected one of: $LLAMA_DIR/llama-quantize or $LLAMA_DIR/quantize" >&2
+  exit 1
+fi
 
 printf '\nllama.cpp installed. Server binary: %s\n' "$LLAMA_DIR/llama-server"
